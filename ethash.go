@@ -132,7 +132,7 @@ type Light struct {
 
 // Verify checks whether the block's nonce is valid.
 func (l *Light) Verify(block Block) bool {
-       return l.VerifyWithAlgo(block, "ethash")
+	return l.VerifyWithAlgo(block, "ethash")
 }
 
 // Verify checks with given algorithm name
@@ -464,13 +464,17 @@ func GetSeedHash(blockNum uint64) ([]byte, error) {
 	if blockNum >= epochLength*2048 {
 		return nil, fmt.Errorf("block number too high, limit is %d", epochLength*2048)
 	}
+	seed := make([]byte, 32)
+	if blockNum < epochLength {
+		return seed, nil
+	}
 	sh := makeSeedHash(blockNum / epochLength)
 	return sh[:], nil
 }
 
 func makeSeedHash(epoch uint64) (sh common.Hash) {
 	for ; epoch > 0; epoch-- {
-		sh = crypto.Sha3Hash(sh[:])
+		sh = crypto.Keccak256Hash(sh[:])
 	}
 	return sh
 }
